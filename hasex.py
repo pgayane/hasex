@@ -7,17 +7,19 @@ def make_state_machine(pattern):
     while i < len(pattern):
         c = pattern[i:i+1]
         if c == '*':
+            print 'in *', prev_state
             for ps in prev_state:
+                print 'in *:', ps
                 add_state(state_machine, ps, ps, ps)
         elif c == '.':
             for ps in prev_state:
                 add_state(state_machine, c, c, 'anything')
         elif c == '[':
             (options, i) = get_options(pattern, i)
+            state_name = ''.join(options)
             for ps in prev_state:
-                for o in options:
-                    add_state(state_machine, ps, o, o)
-            prev_state = options
+                add_state(state_machine, ps, state_name, options)
+            prev_state = [state_name]
         else:
             for ps in prev_state:
                 add_state(state_machine, ps, c, c)
@@ -49,7 +51,9 @@ def get_options(pattern, i):
 def has_next_state(possible_states, value):
     print possible_states, value
     for s in possible_states:
-        if s[1] == value or s[1] == 'anything':
+        # s[0]: to state name
+        # s[1]: possible values for transition
+        if value in s[1] or 'anything' in s[1]:
             return s[0]
     return None
 
